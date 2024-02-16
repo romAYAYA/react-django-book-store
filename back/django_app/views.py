@@ -15,9 +15,7 @@ def get_books(request: Request) -> Response:
     page = pages.page(number=selected_page)
 
     serializer_data = [{"id": x.id, "title": x.title, 'description': x.description} for x in page.object_list]
-
-    return Response({"data": serializer_data})
-
-
+    total_count = len(queryset)
+    return Response({"data": serializer_data, "total_count": total_count})
 
     # "book_file": x.book_file
