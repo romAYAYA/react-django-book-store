@@ -21,13 +21,13 @@ def get_books(request: Request) -> Response:
             books = books.order_by("title")
 
     selected_page = request.GET.get(key="page", default=1)
-    pages = Paginator(object_list=books, per_page=2)
+    pages = Paginator(object_list=books, per_page=20)
     page = pages.page(number=selected_page)
 
-    serializer_books = [{"id": x.id, "title": x.title, 'description': x.description} for x in page.object_list]
+    serialized_books = [{"id": x.id, "title": x.title, 'description': x.description} for x in page.object_list]
     # "book_file": x.book_file
     total_count = len(books)
-    return Response({"data": serializer_books, "total_count": total_count, "sort": sort})
+    return Response({"serialized_books": serialized_books, "total_count": total_count, "sort": sort})
 
 
 @api_view(['GET'])
