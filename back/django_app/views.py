@@ -1,8 +1,10 @@
 from django.core.paginator import Paginator
+from django.db.models import QuerySet
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from django_app import serializers
 from django_app.models import Book
 
 
@@ -24,8 +26,7 @@ def get_books(request: Request) -> Response:
     pages = Paginator(object_list=books, per_page=20)
     page = pages.page(number=selected_page)
 
-    serialized_books = [{"id": x.id, "title": x.title, 'description': x.description} for x in page.object_list]
-    # "book_file": x.book_file
+    serialized_books = serializers.BookSerializer(page, many=True if isinstance(books, QuerySet) else False).data
     total_count = len(books)
     return Response({"serialized_books": serialized_books, "total_count": total_count, "sort": sort})
 
@@ -33,5 +34,5 @@ def get_books(request: Request) -> Response:
 @api_view(['GET'])
 def get_book(request: Request, book_id: str) -> Response:
     book = Book.objects.get(id=int(book_id))
-    serializer_book = {"id": book.id, "title": book.title, 'description': book.description}
-    return Response({"data": serializer_book})
+    serialized_book = serializers.BookSerializer(book, many=True if isinstance(book, QuerySet) else False).data
+    return Response({"data": serialized_book})
