@@ -13,9 +13,15 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 
 import { Search, SearchIconWrapper, StyledInputBase } from '../_styled-components/SearchInput.tsx'
 import Logo from '../../assets/images/logo.png'
+import { Link } from 'react-router-dom'
 
-const pages = ['Products', 'Pricing', 'Blog']
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout']
+const pages = [
+  { title: 'Home', route: '/' },
+  { title: 'Books', route: '/book' },
+  { title: 'Rules', route: '/rules' }
+]
+
+const settings = ['Profile', 'Settings', 'Logout']
 
 export default function SearchAppBar() {
   const [userSettings, setUserSettings] = React.useState<HTMLElement | null>(null)
@@ -33,20 +39,21 @@ export default function SearchAppBar() {
           <img src={ Logo } alt="Logo" height={ 100 }/>
           <Box sx={ { flexGrow: 1, display: { xs: 'flex', md: 'flex' }, alignItems: 'center' } }>
             { pages.map((page) => (
-              <Button
-                key={ page }
-                sx={ {
-                  my: 2,
-                  color: 'white',
-                  display: 'block',
-                  fontSize: {
-                    xs: '0.8rem',
-                    md: '1rem'
-                  }
-                } }
-              >
-                { page }
-              </Button>
+              <Link to={page.route} key={ page.title }>
+                <Button
+                  sx={ {
+                    my: 2,
+                    color: 'white',
+                    display: 'block',
+                    fontSize: {
+                      xs: '0.8rem',
+                      md: '1rem'
+                    }
+                  } }
+                >
+                  { page.title }
+                </Button>
+              </Link>
             )) }
             <Search sx={ { display: { xs: 'none', md: 'block' } } }>
               <SearchIconWrapper>
@@ -60,7 +67,7 @@ export default function SearchAppBar() {
           </Box>
           <Box sx={ { flexGrow: 0 } }>
             <IconButton onClick={ handleOpenUserMenu } sx={ { p: 0 } }>
-              <AccountCircleIcon sx={ { fontSize: 36, color: 'white'} }/>
+              <AccountCircleIcon sx={ { fontSize: 36, color: 'white' } }/>
             </IconButton>
             <Menu
               sx={ { mt: '45px' } }

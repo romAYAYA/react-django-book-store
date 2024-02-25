@@ -1,11 +1,18 @@
-import { configureStore } from '@reduxjs/toolkit'
-import { constructorReducers } from './constructors/reducers.ts'
-import * as constants from './constants.ts'
+import { combineReducers, configureStore } from '@reduxjs/toolkit'
 
-const store = configureStore({
-  reducer: {
-    booksList: constructorReducers(constants.booksList)
-  }
+import bookReducer from './reducers/BookSlice.ts'
+
+const rootReducer = combineReducers({
+  bookReducer
 })
 
-export default store
+export const setupStore = () => {
+  return configureStore({
+    reducer: rootReducer
+  })
+}
+
+
+export type RootState = ReturnType<typeof rootReducer>
+export type AppStore = ReturnType<typeof setupStore>
+export type AppDispatch = AppStore['dispatch']

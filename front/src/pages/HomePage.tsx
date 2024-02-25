@@ -1,9 +1,7 @@
-import BooksGrid from '../components/Books/BooksGrid.tsx'
-
 const HomePage = () => {
   return (
     <>
-      <BooksGrid/>
+      Home page
     </>
   )
 }

@@ -8,6 +8,7 @@ const Footer = () => {
         height: 'auto',
         paddingTop: '1rem',
         paddingBottom: '1rem',
+        marginTop: '1rem',
         boxShadow: '0px -1px 2px 0px rgba(0,0,0,0.75)'
       } }
     >

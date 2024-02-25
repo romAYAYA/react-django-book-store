@@ -3,7 +3,7 @@ import React from 'react'
 import { Card, CardContent, CardMedia, Typography } from '@mui/material'
 
 import bookImage from '../../assets/rptgtpxd-1396254731.avif'
-import { IBook } from '../../interfaces/book.interface.ts'
+import { IBook } from '../../models/book.interface.ts'
 import { Link } from 'react-router-dom'
 
 const BookCard: React.FC<{ book: IBook }> = ({ book: { title, description, id } }) => {
@@ -25,7 +25,7 @@ const BookCard: React.FC<{ book: IBook }> = ({ book: { title, description, id } 
                     color="text.secondary">
           { truncatedDescription }
         </Typography>
-        <Link to={`book/${id}`}>Link</Link>
+        <Link to={`/${id}`}>Link</Link>
       </CardContent>
     </Card>
   )
