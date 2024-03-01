@@ -11,9 +11,12 @@ import { getBooks } from '../../store/actions/BookActions.ts'
 
 const BooksGrid = () => {
   const dispatch = useAppDispatch()
-  const {books, booksTotal, isLoading, error} = useAppSelector(state => state.bookReducer)
-
+  const { books, booksTotal, isLoading, error } = useAppSelector(state => state.bookReducer)
   const [page, setPage] = useState<number>(1)
+
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, pageNumber: number) => {
+    setPage(pageNumber)
+  }
 
   useEffect(() => {
     dispatch(getBooks(page))
@@ -22,28 +25,24 @@ const BooksGrid = () => {
     console.log(error)
   }
 
-  const handlePageChange = (_event: React.ChangeEvent<unknown>, pageNumber: number) => {
-    setPage(pageNumber)
-  }
-
   return (
     <>
-      {isLoading ? (
-        <Box sx={{ display: 'flex' }}>
-          <CircularProgress />
+      { isLoading ? (
+        <Box sx={ { display: 'flex' } }>
+          <CircularProgress/>
         </Box>
       ) : (
-        <Box display="flex" alignItems='center' flexDirection="column">
-          <Grid container gap={2} padding={5} justifyContent='center'>
-            {books && books.map(book => (
-              <BookCard book={book} key={book.id} />
-            ))}
+        <Box display="flex" alignItems="center" flexDirection="column">
+          <Grid container gap={ 2 } padding={ 5 } justifyContent="center">
+            { books && books.map(book => (
+              <BookCard book={ book } key={ book.id }/>
+            )) }
           </Grid>
-          <Stack spacing={2}>
-            <Pagination count={Math.ceil(booksTotal / 20)} page={page} onChange={handlePageChange} />
+          <Stack spacing={ 2 }>
+            <Pagination count={ Math.ceil(booksTotal / 20) } page={ page } onChange={ handlePageChange }/>
           </Stack>
         </Box>
-      )}
+      ) }
     </>
   )
 }

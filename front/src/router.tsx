@@ -9,20 +9,20 @@ import BaseLayout from './components/_base/BaseLayout.tsx'
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <BaseLayout content={<HomePage />} />
+    element: <BaseLayout content={ <HomePage/> }/>
   },
   {
     path: '/book',
-    element: <BaseLayout content={<BooksPage />} />
+    element: <BaseLayout content={ <BooksPage/> }/>
   },
   {
     path: '/:id',
-    element: <BaseLayout content={<BookDetail />} />
+    element: <BaseLayout content={ <BookDetail/> }/>
   },
   {
     path: '/rules',
-    element: <BaseLayout content={<RulesPage />} />
-  },
-]);
+    element: <BaseLayout content={ <RulesPage/> }/>
+  }
+])
 
 export default router
