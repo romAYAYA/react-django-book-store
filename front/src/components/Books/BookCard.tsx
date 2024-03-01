@@ -10,7 +10,7 @@ import Box from '@mui/material/Box'
 const BookCard: React.FC<{ book: IBook }> = ({ book: { title, description, id, book_file } }) => {
   const truncatedDescription = description.length > 150 ? `${ description.slice(0, 150) }...` : description
 
-  const onDownload = async () => {
+  const onDownload = async () => { // TODO переделать
     const response = await fetch(`http://localhost:8000/${book_file}`)
     const blob = await response.blob()
     const url = window.URL.createObjectURL(blob)

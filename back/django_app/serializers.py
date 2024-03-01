@@ -6,4 +6,4 @@ from django_app import models
 class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Book
-        fields = '__all__'
+        fields = "__all__"
