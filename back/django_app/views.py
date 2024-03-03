@@ -1,13 +1,50 @@
+from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import QuerySet
-from rest_framework.decorators import api_view
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from django_app import serializers
-from django_app.models import Book
+from django_app import serializers, utils
+from django_app.models import Book, CustomUser
+
+# TODO переделать пермишны после правки фронта
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def register(request: Request) -> Response:
+    username = request.data.get("username", None)
+    email = request.data.get("email", None)
+    password = request.data.get("password", None)
+    avatar = request.data.get("avatar", None)
+
+    if not username or not email or not password:
+        return Response(
+            {"error": "Username, password or email not provided"}, status=400
+        )
+    user = User.objects.create(username=username, email=email, password=make_password(password),)
+    CustomUser.objects.create(user=user, avatar=avatar)
+    refresh = RefreshToken.for_user(user)
+    return Response(
+        {"access_token": str(refresh.access_token), "refresh_token": str(refresh)},
+        status=201,
+    )
 
 
+@permission_classes([AllowAny])
+@api_view(["GET"])
+def get_users(request: Request) -> Response:
+    users = CustomUser.objects.all()
+    serialized_users = serializers.CustomUserSerializer(instance=users, many=True).data
+    return Response(serialized_users)
+
+
+@permission_classes([AllowAny])
 @api_view(["GET"])
 def get_books(request: Request) -> Response:
     sort = request.GET.get("sort", "desc")
@@ -35,6 +72,7 @@ def get_books(request: Request) -> Response:
     )
 
 
+@permission_classes([AllowAny])
 @api_view(["GET"])
 def get_book(request: Request, book_id: str) -> Response:
     book = Book.objects.get(id=int(book_id))

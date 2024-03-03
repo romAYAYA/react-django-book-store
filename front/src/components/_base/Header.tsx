@@ -65,6 +65,7 @@ export default function SearchAppBar() {
               />
             </Search>
           </Box>
+          <Link to='/register'>Register</Link>
           <Box sx={ { flexGrow: 0 } }>
             <IconButton onClick={ handleOpenUserMenu } sx={ { p: 0 } }>
               <AccountCircleIcon sx={ { fontSize: 36, color: 'white' } }/>

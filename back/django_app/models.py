@@ -1,5 +1,40 @@
+from django.contrib.auth.models import User, Group
 from django.core.validators import FileExtensionValidator
 from django.db import models
+
+
+class CustomUser(models.Model):
+    user = models.OneToOneField(
+        verbose_name="User Profile",
+        db_index=True,
+        primary_key=False,
+        editable=True,
+        blank=True,
+        null=True,
+        default=None,
+        max_length=300,
+        #
+        to=User,
+        on_delete=models.CASCADE,
+        related_name="profile",
+    )
+    avatar = models.ImageField(
+        verbose_name="Avatar",
+        validators=[FileExtensionValidator(["jpg", "png", "jpeg"])],
+        unique=False,
+        editable=True,
+        blank=True,
+        null=True,
+        default=None,
+        upload_to="avatars",
+    )
+    groups = models.ManyToManyField(
+        Group,
+        related_name="custom_users",
+        blank=True,
+        verbose_name="Groups",
+        help_text="The groups this user belongs to.",
+    )
 
 
 class Book(models.Model):
