@@ -1,9 +1,11 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 
 import bookReducer from './reducers/BookSlice.ts'
+import userReducer from './reducers/UserSlice.ts'
 
 const rootReducer = combineReducers({
-  bookReducer
+  bookReducer,
+  userReducer
 })
 
 export const setupStore = () => {

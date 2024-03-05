@@ -1,41 +1,27 @@
-import React, { useState } from 'react'
 import { Box, Button, TextField } from '@mui/material'
 import { Typography } from '@mui/material'
-import axios from 'axios'
+
 import { IUserData } from '../models/user.interface.ts'
+import { useForm, SubmitHandler } from 'react-hook-form'
+
+import { registerUser } from '../store/actions/UserActions.ts'
+import { useAppDispatch } from '../hooks/redux.ts'
 
 const RegisterPage = () => {
-  const [formData, setFormData] = useState<IUserData>({
-    username: '',
-    email: '',
-    password: '',
-    avatar: null
-  })
-  const formDataToSend = new FormData()
-  formDataToSend.append('username', formData.username)
-  formDataToSend.append('email', formData.email)
-  formDataToSend.append('password', formData.password)
-  if (formData.avatar) {
-    formDataToSend.append('avatar', formData.avatar)
-  }
+  const dispatch = useAppDispatch()
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors }
+  } = useForm<IUserData>()
+  const selectedAvatar = watch('avatar')
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    try {
-      const { data } = await axios.post('http://127.0.0.1:8000/api/register', formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      })
-      console.log('Registration successful:', data)
-    } catch (error) {
-      console.error('Error during registration:', error)
-    }
-  }
+  const onSubmit: SubmitHandler<IUserData> = async payload => dispatch(registerUser(payload))
 
   return (
     <>
-      <form onSubmit={ handleSubmit }>
+      <form onSubmit={ handleSubmit(onSubmit) }>
         <Box sx={ {
           display: 'flex',
           flexDirection: 'column',
@@ -66,31 +52,25 @@ const RegisterPage = () => {
               variant="standard"
               label="Nickname"
               type="text"
-              value={ formData.username }
-              onChange={ (event) => {
-                setFormData({ ...formData, username: event.target.value })
-              } }
-              required
+              { ...register('username', { required: true }) }
+              error={ !!errors.username }
+              helperText={ errors.username && 'Nickname is required' }
             />
             <TextField
               type="email"
               variant="standard"
               label="Email"
-              value={ formData.email }
-              onChange={ (event) => {
-                setFormData({ ...formData, email: event.target.value })
-              } }
-              required
+              { ...register('email', { required: true }) }
+              error={ !!errors.email }
+              helperText={ errors.email && 'Email field is required' }
             />
             <TextField
               type="password"
               variant="standard"
               label="Password"
-              value={ formData.password }
-              onChange={ (event) => {
-                setFormData({ ...formData, password: event.target.value })
-              } }
-              required
+              { ...register('password', { required: true }) }
+              error={ !!errors.password }
+              helperText={ errors.password && 'Password field is required' }
             />
             <Button
               variant="contained"
@@ -101,15 +81,16 @@ const RegisterPage = () => {
                 type="file"
                 accept="image/*"
                 hidden
-                name="avatar"
-                onChange={ (event) => {
-                  const file = event.target.files && event.target.files[0]
-                  setFormData({ ...formData, avatar: file })
-                } }
+                { ...register('avatar') }
                 required
               />
             </Button>
-            { formData.avatar && <p>Selected File: { formData.avatar.name }</p> }
+            { selectedAvatar && (
+              <p style={ { color: 'green' } }>Avatar selected</p>
+            ) }
+            { errors.avatar && (
+              <p style={ { color: 'red' } }>Avatar is required</p>
+            ) }
             <Button type="submit">Register</Button>
           </Box>
         </Box>

@@ -12,8 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from django_app import serializers, utils
 from django_app.models import Book, CustomUser
-
-# TODO переделать пермишны после правки фронта
+from django_app.utils import password_check
 
 
 @api_view(["POST"])
@@ -28,6 +27,10 @@ def register(request: Request) -> Response:
         return Response(
             {"error": "Username, password or email not provided"}, status=400
         )
+
+    if not password_check(password):
+        return Response({"error": "Password is invalid"}, status=400)
+
     user = User.objects.create(
         username=username,
         email=email,
@@ -41,16 +44,16 @@ def register(request: Request) -> Response:
     )
 
 
-@permission_classes([AllowAny])
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def get_users(request: Request) -> Response:
     users = CustomUser.objects.all()
     serialized_users = serializers.CustomUserSerializer(instance=users, many=True).data
     return Response(serialized_users)
 
 
-@permission_classes([AllowAny])
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def get_books(request: Request) -> Response:
     sort = request.GET.get("sort", "desc")
 
@@ -77,8 +80,8 @@ def get_books(request: Request) -> Response:
     )
 
 
-@permission_classes([AllowAny])
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def get_book(request: Request, book_id: str) -> Response:
     book = Book.objects.get(id=int(book_id))
     serialized_book = serializers.BookSerializer(
