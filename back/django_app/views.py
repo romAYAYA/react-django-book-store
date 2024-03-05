@@ -15,6 +15,7 @@ from django_app.models import Book, CustomUser
 
 # TODO переделать пермишны после правки фронта
 
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def register(request: Request) -> Response:
@@ -27,7 +28,11 @@ def register(request: Request) -> Response:
         return Response(
             {"error": "Username, password or email not provided"}, status=400
         )
-    user = User.objects.create(username=username, email=email, password=make_password(password),)
+    user = User.objects.create(
+        username=username,
+        email=email,
+        password=make_password(password),
+    )
     CustomUser.objects.create(user=user, avatar=avatar)
     refresh = RefreshToken.for_user(user)
     return Response(
