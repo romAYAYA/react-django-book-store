@@ -1,3 +1,6 @@
+import datetime
+from django.utils import timezone
+
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
@@ -5,14 +8,54 @@ from django.core.paginator import Paginator
 from django.db.models import QuerySet
 
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from django_app import serializers, utils
-from django_app.models import Book, CustomUser
-from django_app.utils import password_check
+from django_app.models import Book, CustomUser, LoginLogs
+from django_app.utils import password_check, get_client_ip
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def user_login(request: Request) -> Response:
+    username = request.data.get("username", None)
+    password = request.data.get("password", None)
+
+    if not username or not password:
+        return Response(
+            {"error": "Username, password or email not provided"}, status=400
+        )
+
+    user = authenticate(request, username=username, password=password)
+
+    ten_mins_ago = timezone.now() - datetime.timedelta(minutes=10)
+
+    login_count = LoginLogs.objects.filter(user=user, date__gt=ten_mins_ago).count()
+    print("time", ten_mins_ago)
+
+    if login_count > 10:
+        return Response({"error": "AYAYA, dont dddose"}, status=401)
+
+    print("smth", login_count)
+
+    ip_address = get_client_ip(request)
+
+    LoginLogs.objects.create(user=user, ip_address=ip_address, date=timezone.now())
+
+    serialized_user = serializers.UserSerializer(user, many=False).data
+
+    refresh = RefreshToken.for_user(user)
+    return Response(
+        {
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh),
+            "username": serialized_user,
+        },
+        status=201,
+    )
 
 
 @api_view(["POST"])

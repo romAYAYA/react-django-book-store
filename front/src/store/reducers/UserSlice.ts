@@ -29,7 +29,10 @@ export const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(registerUser.fulfilled, (state, action: PayloadAction<{ accessToken: string, refreshToken: string }>) => {
+      .addCase(registerUser.fulfilled, (state, action: PayloadAction<{
+        accessToken: string,
+        refreshToken: string
+      }>) => {
         state.isLoading = false
         state.error = ''
         state.accessToken = action.payload.accessToken
@@ -40,7 +43,7 @@ export const userSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false
-        state.error = action.error.message || 'An error occurred'
+        state.error = (action.payload as { errorMessage: string }).errorMessage
       })
   }
 })

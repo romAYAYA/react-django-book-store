@@ -81,13 +81,9 @@ const RegisterPage = () => {
                 type="file"
                 accept="image/*"
                 hidden
-                { ...register('avatar') }
-                required
+                { ...register('avatar', { required: true }) }
               />
             </Button>
-            { selectedAvatar && (
-              <p style={ { color: 'green' } }>Avatar selected</p>
-            ) }
             { errors.avatar && (
               <p style={ { color: 'red' } }>Avatar is required</p>
             ) }
