@@ -84,6 +84,9 @@ const RegisterPage = () => {
                 { ...register('avatar', { required: true }) }
               />
             </Button>
+            {selectedAvatar && (
+              <p style={ { color: 'green' } }>Image selected</p>
+            ) }
             { errors.avatar && (
               <p style={ { color: 'red' } }>Avatar is required</p>
             ) }

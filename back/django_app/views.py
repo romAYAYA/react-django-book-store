@@ -31,15 +31,13 @@ def user_login(request: Request) -> Response:
 
     user = authenticate(request, username=username, password=password)
 
-    ten_mins_ago = timezone.now() - datetime.timedelta(minutes=10)
+    ten_minutes_ago = timezone.now() - datetime.timedelta(minutes=10)
 
-    login_count = LoginLogs.objects.filter(user=user, date__gt=ten_mins_ago).count()
-    print("time", ten_mins_ago)
+    login_count = LoginLogs.objects.filter(user=user, date__gt=ten_minutes_ago).count()
+    print("time", ten_minutes_ago)
 
     if login_count > 10:
-        return Response({"error": "AYAYA, dont dddose"}, status=401)
-
-    print("smth", login_count)
+        return Response({"error": "AYAYA, dont ddose"}, status=401)
 
     ip_address = get_client_ip(request)
 
