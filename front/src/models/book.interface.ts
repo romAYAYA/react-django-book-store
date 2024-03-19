@@ -5,6 +5,10 @@ export interface IBook {
   book_file: string
 }
 
+export interface ISerializedBookResponse {
+  data: IBook
+}
+
 export interface ISerializedBooksResponse {
   serialized_books: IBook[]
   total_count: number

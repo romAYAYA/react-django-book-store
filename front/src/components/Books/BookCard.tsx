@@ -10,19 +10,6 @@ import Box from '@mui/material/Box'
 const BookCard: React.FC<{ book: IBook }> = ({ book: { title, description, id, book_file } }) => {
   const truncatedDescription = description.length > 150 ? `${ description.slice(0, 150) }...` : description
 
-  const onDownload = async () => { // TODO переделать
-    const response = await fetch(`http://localhost:8000/${book_file}`)
-    const blob = await response.blob()
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', '')
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-  }
-
   return (
     <Card sx={ { maxWidth: 345 } }>
       <CardMedia
@@ -41,9 +28,7 @@ const BookCard: React.FC<{ book: IBook }> = ({ book: { title, description, id, b
         </Typography>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Link to={ `/${ id }` }>Link</Link>
-          <Button onClick={ onDownload } variant="contained" color="primary">
-            Download
-          </Button>
+          
         </Box>
       </CardContent>
     </Card>

@@ -1,8 +1,9 @@
 import { IBook } from '../../models/book.interface.ts'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { getBooks } from '../actions/BookActions.ts'
+import { getBooks, getBook } from '../actions/BookActions.ts'
 
 interface BookState {
+  book: IBook | null
   books: IBook[]
   booksTotal: number
   isLoading: boolean
@@ -10,6 +11,7 @@ interface BookState {
 }
 
 const initialState: BookState = {
+  book: null,
   books: [],
   booksTotal: 0,
   isLoading: false,
@@ -35,6 +37,18 @@ export const bookSlice = createSlice({
         state.isLoading = true
       })
       .addCase(getBooks.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = (action.payload as { errorMessage: string }).errorMessage
+      })
+      .addCase(getBook.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.error = ''
+        state.book = action.payload
+      })
+      .addCase(getBook.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(getBook.rejected, (state, action) => {
         state.isLoading = false
         state.error = (action.payload as { errorMessage: string }).errorMessage
       })
