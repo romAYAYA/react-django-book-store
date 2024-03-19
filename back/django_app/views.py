@@ -16,6 +16,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django_app import serializers, utils
 from django_app.models import Book, CustomUser, Logs
 from django_app.utils import password_check, get_client_ip
+from django.views.decorators.cache import cache_page
 
 
 @api_view(["POST"])
@@ -118,9 +119,9 @@ def get_users(request: Request) -> Response:
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
+@cache_page(60 * 15)
 def get_books(request: Request) -> Response:
     sort = request.GET.get("sort", "desc")
-
     books = Book.objects.all()
 
     match sort:
