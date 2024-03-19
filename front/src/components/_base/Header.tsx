@@ -20,8 +20,9 @@ import {
   StyledInputBase,
 } from '../_styled-components/SearchInput.tsx'
 import Logo from '../../assets/images/logo.png'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../hooks/redux.ts'
+import { logoutUser } from '../../store/actions/UserActions.ts'
 
 const pages = [
   { title: 'Home', route: '/' },
@@ -33,7 +34,8 @@ const settings = ['Profile', 'Settings', 'Logout']
 
 const SearchAppBar = () => {
   const dispatch = useAppDispatch()
-  const [isAuthorized, setIsAuthorized] = useState<Boolean>(false) 
+  const navigate = useNavigate()
+  const [isAuthorized, setIsAuthorized] = useState<Boolean>(false)
   const [userSettings, setUserSettings] = React.useState<HTMLElement | null>(
     null,
   )
@@ -44,7 +46,12 @@ const SearchAppBar = () => {
     if (accessToken && refreshToken) {
       setIsAuthorized(true)
     }
-  }, [dispatch])
+  }, [])
+
+  const handleLogout = () => {
+    dispatch(logoutUser())
+    navigate('/')
+  }
 
   const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
     setUserSettings(event.currentTarget)
@@ -52,6 +59,7 @@ const SearchAppBar = () => {
   const handleCloseUserMenu = () => {
     setUserSettings(null)
   }
+
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
@@ -91,34 +99,38 @@ const SearchAppBar = () => {
               />
             </Search>
           </Box>
-          {!isAuthorized && <Link to="/register">Register</Link>}
-          <Box sx={{ flexGrow: 0 }}>
-            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              <AccountCircleIcon sx={{ fontSize: 36, color: 'white' }} />
-            </IconButton>
-            <Menu
-              sx={{ mt: '45px' }}
-              id="menu-appbar"
-              anchorEl={userSettings}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(userSettings)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
+          {!isAuthorized ? (
+            <Link to="/register">Register</Link>
+          ) : (
+            <Box sx={{ flexGrow: 0 }}>
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <AccountCircleIcon sx={{ fontSize: 36, color: 'white' }} />
+              </IconButton>
+              <Menu
+                sx={{ mt: '45px' }}
+                id="menu-appbar"
+                anchorEl={userSettings}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(userSettings)}
+                onClose={handleCloseUserMenu}
+              >
+                <MenuItem onClick={handleCloseUserMenu}>
+                  <Typography textAlign="center">Settings</Typography>
                 </MenuItem>
-              ))}
-            </Menu>
-          </Box>
+                <MenuItem onClick={handleLogout}>
+                  <Typography textAlign="center">Logout</Typography>
+                </MenuItem>
+              </Menu>
+            </Box>
+          )}
         </Toolbar>
       </Container>
     </AppBar>

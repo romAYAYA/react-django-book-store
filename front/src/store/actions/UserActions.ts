@@ -57,7 +57,7 @@ export const logoutUser = createAsyncThunk(
   'logout/user',
   async (_, thunkAPI) => {
     try {
-      await axiosInstance.post('/logout')
+      await axiosInstance.post('/logout', {refresh_token: Cookies.get('refresh_token')})
       Cookies.remove('access_token')
       Cookies.remove('refresh_token')
     } catch (err) {
