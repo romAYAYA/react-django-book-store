@@ -8,13 +8,13 @@ from django.core.paginator import Paginator
 from django.db.models import QuerySet
 
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from django_app import serializers, utils
-from django_app.models import Book, CustomUser, LoginLogs
+from django_app.models import Book, CustomUser, Logs
 from django_app.utils import password_check, get_client_ip
 
 
@@ -31,26 +31,27 @@ def user_login(request: Request) -> Response:
 
     user = authenticate(request, username=username, password=password)
 
-    ten_minutes_ago = timezone.now() - datetime.timedelta(minutes=10)
-
-    login_count = LoginLogs.objects.filter(user=user, date__gt=ten_minutes_ago).count()
-    print("time", ten_minutes_ago)
+    login_count = Logs.objects.filter(
+        user=user, date__gt=timezone.now() - datetime.timedelta(minutes=10)
+    ).count()
 
     if login_count > 10:
         return Response({"error": "AYAYA, dont ddose"}, status=401)
 
-    ip_address = get_client_ip(request)
+    Logs.objects.create(
+        user=user, ip_address=get_client_ip(request), date=timezone.now()
+    )
 
-    LoginLogs.objects.create(user=user, ip_address=ip_address, date=timezone.now())
-
-    serialized_user = serializers.UserSerializer(user, many=False).data
-
+    serialized_user = serializers.CustomUserSerializer(
+        CustomUser.objects.get(user=user), many=False
+    ).data
     refresh = RefreshToken.for_user(user)
+
     return Response(
         {
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh),
-            "username": serialized_user,
+            "user": serialized_user,
         },
         status=201,
     )
@@ -79,10 +80,32 @@ def register(request: Request) -> Response:
     )
     CustomUser.objects.create(user=user, avatar=avatar)
     refresh = RefreshToken.for_user(user)
+
+    serialized_user = serializers.CustomUserSerializer(
+        CustomUser.objects.get(user=user), many=False
+    ).data
+
     return Response(
-        {"access_token": str(refresh.access_token), "refresh_token": str(refresh)},
+        {
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh),
+            "serialized_user": serialized_user,
+        },
         status=201,
     )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def logout_user(request: Request) -> Response:
+    try:
+        refresh_token = request.data["refresh_token"]
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+
+        return Response({"message": "Logout successful"}, status=200)
+    except Exception as error:
+        return Response({"error": str(error)}, status=400)
 
 
 @api_view(["GET"])
@@ -94,7 +117,7 @@ def get_users(request: Request) -> Response:
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def get_books(request: Request) -> Response:
     sort = request.GET.get("sort", "desc")
 
@@ -122,7 +145,7 @@ def get_books(request: Request) -> Response:
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def get_book(request: Request, book_id: str) -> Response:
     book = Book.objects.get(id=int(book_id))
     serialized_book = serializers.BookSerializer(

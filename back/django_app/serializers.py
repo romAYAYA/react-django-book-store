@@ -6,7 +6,7 @@ from django_app import models
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        exclude = ["password", "groups", "is_staff", "is_superuser", "last_login"]
+        exclude = ["password", "is_staff", "is_superuser", "last_login"]
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -18,9 +18,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     @staticmethod
-    def get_groups(user: User):
+    def get_groups(user: models.CustomUser):
         try:
-            groups: [Group] = user.groups.order_by("name")
+            groups = user.groups.order_by("name")
             groups_names = []
             for group in groups:
                 groups_names.append(group.name)

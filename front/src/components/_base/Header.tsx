@@ -1,4 +1,7 @@
-import React, { MouseEvent } from 'react'
+import React, { MouseEvent, useEffect, useState } from 'react'
+import Cookies from 'js-cookie'
+
+import setIsAuthorized from '../../store/reducers/UserSlice.ts'
 
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
@@ -11,24 +14,41 @@ import MenuItem from '@mui/material/MenuItem'
 import { Button, Container } from '@mui/material'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 
-import { Search, SearchIconWrapper, StyledInputBase } from '../_styled-components/SearchInput.tsx'
+import {
+  Search,
+  SearchIconWrapper,
+  StyledInputBase,
+} from '../_styled-components/SearchInput.tsx'
 import Logo from '../../assets/images/logo.png'
 import { Link } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '../../hooks/redux.ts'
 
 const pages = [
   { title: 'Home', route: '/' },
   { title: 'Books', route: '/book' },
-  { title: 'Rules', route: '/rules' }
+  { title: 'Rules', route: '/rules' },
 ]
 
 const settings = ['Profile', 'Settings', 'Logout']
 
-export default function SearchAppBar() {
-  const [userSettings, setUserSettings] = React.useState<HTMLElement | null>(null)
+const SearchAppBar = () => {
+  const dispatch = useAppDispatch()
+  const [isAuthorized, setIsAuthorized] = useState<Boolean>(false) 
+  const [userSettings, setUserSettings] = React.useState<HTMLElement | null>(
+    null,
+  )
+
+  useEffect(() => {
+    const accessToken = Cookies.get('access_token')
+    const refreshToken = Cookies.get('refresh_token')
+    if (accessToken && refreshToken) {
+      setIsAuthorized(true)
+    }
+  }, [dispatch])
+
   const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
     setUserSettings(event.currentTarget)
   }
-
   const handleCloseUserMenu = () => {
     setUserSettings(null)
   }
@@ -36,61 +56,67 @@ export default function SearchAppBar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <img src={ Logo } alt="Logo" height={ 100 }/>
-          <Box sx={ { flexGrow: 1, display: { xs: 'flex', md: 'flex' }, alignItems: 'center' } }>
-            { pages.map((page) => (
-              <Link to={page.route} key={ page.title }>
+          <img src={Logo} alt="Logo" height={100} />
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { xs: 'flex', md: 'flex' },
+              alignItems: 'center',
+            }}
+          >
+            {pages.map((page) => (
+              <Link to={page.route} key={page.title}>
                 <Button
-                  sx={ {
+                  sx={{
                     my: 2,
                     color: 'white',
                     display: 'block',
                     fontSize: {
                       xs: '0.8rem',
-                      md: '1rem'
-                    }
-                  } }
+                      md: '1rem',
+                    },
+                  }}
                 >
-                  { page.title }
+                  {page.title}
                 </Button>
               </Link>
-            )) }
-            <Search sx={ { display: { xs: 'none', md: 'block' } } }>
+            ))}
+            <Search sx={{ display: { xs: 'none', md: 'block' } }}>
               <SearchIconWrapper>
-                <SearchIcon/>
+                <SearchIcon />
               </SearchIconWrapper>
               <StyledInputBase
                 placeholder="Search…"
-                inputProps={ { 'aria-label': 'search' } }
+                inputProps={{ 'aria-label': 'search' }}
               />
             </Search>
           </Box>
-          <Link to='/register'>Register</Link>
-          <Box sx={ { flexGrow: 0 } }>
-            <IconButton onClick={ handleOpenUserMenu } sx={ { p: 0 } }>
-              <AccountCircleIcon sx={ { fontSize: 36, color: 'white' } }/>
+          {!isAuthorized && <Link to="/register">Register</Link>}
+          <Box sx={{ flexGrow: 0 }}>
+            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+              <AccountCircleIcon sx={{ fontSize: 36, color: 'white' }} />
             </IconButton>
             <Menu
-              sx={ { mt: '45px' } }
+              sx={{ mt: '45px' }}
               id="menu-appbar"
-              anchorEl={ userSettings }
-              anchorOrigin={ {
+              anchorEl={userSettings}
+              anchorOrigin={{
                 vertical: 'top',
-                horizontal: 'right'
-              } }
+                horizontal: 'right',
+              }}
               keepMounted
-              transformOrigin={ {
+              transformOrigin={{
                 vertical: 'top',
-                horizontal: 'right'
-              } }
-              open={ Boolean(userSettings) }
-              onClose={ handleCloseUserMenu }
+                horizontal: 'right',
+              }}
+              open={Boolean(userSettings)}
+              onClose={handleCloseUserMenu}
             >
-              { settings.map((setting) => (
-                <MenuItem key={ setting } onClick={ handleCloseUserMenu }>
-                  <Typography textAlign="center">{ setting }</Typography>
+              {settings.map((setting) => (
+                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                  <Typography textAlign="center">{setting}</Typography>
                 </MenuItem>
-              )) }
+              ))}
             </Menu>
           </Box>
         </Toolbar>
@@ -98,3 +124,5 @@ export default function SearchAppBar() {
     </AppBar>
   )
 }
+
+export default SearchAppBar

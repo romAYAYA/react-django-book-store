@@ -1,7 +1,8 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { registerUser } from '../actions/UserActions.ts'
+import { createSlice } from '@reduxjs/toolkit'
+import { loginUser, registerUser, logoutUser } from '../actions/UserActions.ts'
 
 interface UserState {
+  isAuthorized: boolean
   username: string
   avatar: string
   email: string
@@ -13,6 +14,7 @@ interface UserState {
 }
 
 const initialState: UserState = {
+  isAuthorized: false,
   username: '',
   avatar: '',
   email: '',
@@ -20,23 +22,24 @@ const initialState: UserState = {
   error: '',
 
   accessToken: '',
-  refreshToken: ''
+  refreshToken: '',
 }
 
 export const userSlice = createSlice({
   name: 'user',
   initialState,
-  reducers: {},
+  reducers: {
+    setIsAuthorized(state, action) {
+      state.isAuthorized = action.payload
+    },
+  },
   extraReducers: (builder) => {
     builder
-      .addCase(registerUser.fulfilled, (state, action: PayloadAction<{
-        accessToken: string,
-        refreshToken: string
-      }>) => {
+      // register
+      .addCase(registerUser.fulfilled, (state) => {
         state.isLoading = false
         state.error = ''
-        state.accessToken = action.payload.accessToken
-        state.refreshToken = action.payload.refreshToken
+        state.isAuthorized = true
       })
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true
@@ -45,7 +48,33 @@ export const userSlice = createSlice({
         state.isLoading = false
         state.error = (action.payload as { errorMessage: string }).errorMessage
       })
-  }
+      // login
+      .addCase(loginUser.fulfilled, (state) => {
+        state.isLoading = false
+        state.error = ''
+        state.isAuthorized = true
+      })
+      .addCase(loginUser.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = (action.payload as { errorMessage: string }).errorMessage
+      })
+      // logout
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.isLoading = false
+        state.error = ''
+        state.isAuthorized = false
+      })
+      .addCase(logoutUser.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = (action.payload as { errorMessage: string }).errorMessage
+      })
+  },
 })
 
 export default userSlice.reducer

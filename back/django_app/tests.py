@@ -11,7 +11,7 @@ def test_requests():
         pass
 
 
-num_threads = 15
+num_threads = 150000
 
 with ThreadPoolExecutor(max_workers=num_threads) as executor:
     futures = [executor.submit(test_requests) for _ in range(num_threads)]

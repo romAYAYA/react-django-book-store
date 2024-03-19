@@ -1,7 +1,7 @@
 import datetime
 from django.utils import timezone
 
-from django_app.models import LoginLogs
+from django_app.models import Logs
 from django_app.utils import get_client_ip
 
 
@@ -12,13 +12,13 @@ class CheckRequestsCount(object):
     def __call__(self, request):
         user_ip = get_client_ip(request)
         second_ago = timezone.now() - datetime.timedelta(seconds=1)
-        LoginLogs.objects.create(user=None, ip_address=user_ip, date=timezone.now())
+        Logs.objects.create(user=None, ip_address=user_ip, date=timezone.now())
 
-        login_count = LoginLogs.objects.filter(
+        requests_count = Logs.objects.filter(
             ip_address=user_ip, date__gt=second_ago
         ).count()
 
-        if login_count > 10:
+        if requests_count > 100:
             raise Exception("Too many requests per second")
 
         response = self.get_response(request)

@@ -4,17 +4,17 @@ from django.db import models
 from django.utils import timezone
 
 
-class LoginLogs(models.Model):
+class Logs(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True, null=True)
     ip_address = models.CharField(max_length=40, db_index=True)
     date = models.DateTimeField(default=timezone.now, db_index=True)
 
     def __str__(self):
-        return f'{self.ip_address} {self.date} {self.user}'
+        return f"{self.ip_address} {self.date} {self.user}"
 
 
 class CustomUser(models.Model):
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         verbose_name="User Profile",
         db_index=True,
         primary_key=False,
@@ -26,7 +26,6 @@ class CustomUser(models.Model):
         #
         to=User,
         on_delete=models.CASCADE,
-        related_name="profile",
     )
     avatar = models.ImageField(
         verbose_name="Avatar",
@@ -43,7 +42,6 @@ class CustomUser(models.Model):
         related_name="custom_users",
         blank=True,
         verbose_name="Groups",
-        help_text="The groups this user belongs to.",
     )
 
 
